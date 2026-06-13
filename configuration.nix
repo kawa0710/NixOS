@@ -54,12 +54,12 @@
 
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
-  # services.xserver = {
-  #   enable = true;
-  #   autoRepeatDelay = 200;
-  #   autoRepeatInterval = 35;
-  #   windowManager.niri.enable = true;
-  # };
+  services.xserver = {
+    enable = true;
+    autoRepeatDelay = 200;
+    autoRepeatInterval = 35;
+    # windowManager.niri.enable = true;
+  };
 
   # Configure keymap in X11
   services.xserver.xkb = {
@@ -113,7 +113,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd niri-session";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd dbus-run-session niri --session";
         user="greeter";
       };
     };

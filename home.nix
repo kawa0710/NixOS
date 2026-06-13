@@ -11,7 +11,10 @@
 
   programs.git = {
     enable = true;
-    userName = "kawa"; 
+    settings = {
+      user.name = "kawa";
+      user.email = "kawa0710@gmail.com";
+    };
   };
   # programs.bash = {
   #   enable = true;
@@ -24,33 +27,14 @@
   # };
   
   # xdg.configFile."niri/config.kdl".source = ./config.kdl;
-
+  # xdg.configFile."niri/config.kdl".source = ../dotfiles/niri/config.kdl;
   programs.niri = {
     enable = true;
-    settings = {
-      environment = {
-        "DISPLAY" = ":0";
-      };
-
-      input = {
-        keyboard.xkb.layout = "us";
-        touchpad.tap = true;
-      };
-
-      spawn-at-startup = [
-        {
-          command = [ "noctalia" ];
-        }
-        {
-          command = [ "${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent" ]; 
-        }
-      ];
-
-      # binds = with config.lib.niri.actions; {
-      #   "Mod+Return".action = spawn "alacritty";
-      #  "Mod+Q".action = ckise-window;
-      # };
-    };
+    config = ''
+      ${builtins.readFile /home/kawa/dotfiles/niri/config.kdl}
+      spawn-at-startup "noctalia"
+      spawn-at-startup "${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
+    '';
   };
 
 

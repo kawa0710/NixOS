@@ -19,7 +19,7 @@
     };
 
     
-    heliuma = {
+    helium = {
       url = "github:oxcl/nix-flake-helium-browser/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
