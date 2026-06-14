@@ -85,12 +85,16 @@
     helix
     wget
     curl
+    fzf
+    ripgrep
+    fd
+    bat
     # --- niri setup begin ---
-    # inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default # Optional dependencies often used in Niri/Noctalia setups
     tuigreet
     lxqt.lxqt-policykit
-    # xwayland-satellite # xwayland support
     # --- niri setup begin ---
+
+    libsecret
   ];
 
   fonts.packages = with pkgs; [
@@ -98,6 +102,23 @@
   ];
 
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
+  programs.bash = {
+    enable = true;
+    #  Setting fish as default shell
+    interactiveShellInit = ''
+      # "check if parent process is not fish" && "make nested shells work properly"
+      if grep -qv fish /proc/$PPID/comm && [[ $SHLVL == [12] ]]; then
+          # set $SHELL for better integration with programs like nix shell, tmux, etc.
+          SHELL=${pkgs.fish}/bin/fish exec fish
+      fi
+    '';
+  };
+  # programs.fish = {
+  #   enable = true;
+  # };
+  
+
 
   # --- niri setup begin ---
   # Sound
@@ -113,7 +134,7 @@
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd dbus-run-session niri --session";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'dbus-run-session niri --session'";
         user="greeter";
       };
     };
@@ -133,6 +154,8 @@
     ];
     config.niri = {
       "org.freedesktop.impl.portal.FileChooser" = [ "gnome" "gtk" ];
+      "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" "gtk" ];
+      "org.freedesktop.impl.portal.Screenshot" = [ "gnome" "gtk" ];
     };
   };
   

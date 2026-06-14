@@ -9,34 +9,54 @@
   home.homeDirectory = lib.mkForce "/home/kawa";
   home.stateVersion = "26.05";
 
+  home.packages = with pkgs; [
+    alacritty
+    # xdg-utils
+    # wl-clipboardi
+    nemo
+    nautilus # GNOME portal 依賴的檔案管理器
+    # thunar
+    kitty
+    grc
+    xwayland-satellite # xwayland support
+    mousepad
+    ksnip
+    
+    # inputs.antigravity-nix.packages.${pkgs.system}.default
+    inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-ide
+    # inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-cli
+
+    bottles
+    winboat
+    libreoffice
+    sourcegit
+    zed-editor
+    gpu-screen-recorder
+    gpu-screen-recorder-gtk
+  ];
+
   programs.git = {
     enable = true;
     settings = {
       user.name = "kawa";
       user.email = "kawa0710@gmail.com";
+      http.sslVerify = false;
+      credential.helper = "libsecret";
     };
   };
-  # programs.bash = {
-  #   enable = true;
-  #   shellAliases = {
-    
-  #   };
-  # };
-  # programs.fish = {
-  #   enable = true;
-  # };
   
   # xdg.configFile."niri/config.kdl".source = ./config.kdl;
   # xdg.configFile."niri/config.kdl".source = ../dotfiles/niri/config.kdl;
+  # xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
+  xdg.configFile."niri/config.kdl".source = config.lib.file.mkOutOfStoreSymlink /home/kawa/nixos/niri/config.kdl;
   programs.niri = {
     enable = true;
-    config = ''
-      ${builtins.readFile /home/kawa/dotfiles/niri/config.kdl}
-      spawn-at-startup "noctalia"
-      spawn-at-startup "${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
-    '';
+    # config = ''
+      # ${builtins.readFile ./niri/config.kdl}
+      # spawn-at-startup "noctalia"
+      # spawn-at-startup "${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
+    # '';
   };
-
 
   programs.noctalia = {
     enable = true;
@@ -50,11 +70,81 @@
     # flags = [ "" ];
   };
 
-  home.packages = with pkgs; [
-    alacritty
-    # xdg-utils
-    # wl-clipboard
-  ];
+  programs.fish = {
+    enable = true;
+    interactiveShellInit = ''
+      set fish_greeting # Disable greeting
+    '';
+    plugins = [
+      # Enable a plugin (here grc for colorized command output) from nixpkgs
+      { name = "grc"; src = pkgs.fishPlugins.grc.src; }
+      # Manually packaging and enable a plugin
+      {
+        name = "z";
+        src = pkgs.fetchFromGitHub {
+          owner = "jethrokuan";
+          repo = "z";
+          rev = "e0e1b9dfdba362f8ab1ae8c1afc7ccf62b89f7eb";
+          sha256 = "0dbnir6jbwjpjalz14snzd3cgdysgcs3raznsijd6savad3qhijc";
+        };
+      }
+    ];
+  };
+
+  # programs.antigravity = {
+  #   enable = true;
+  #   profiles.default.extensions = with pkgs.vscode-extensions; [
+  #     kenan-salar.calmppuccin-vscode
+  #     yzhang.markdown-all-in-one
+  #   ];
+  # };
+
+  programs.yazi = {
+    enable = true;
+    plugins = {
+      inherit (pkgs.yaziPlugins) mount bookmarks;
+    };
+  };
 
   programs.home-manager.enable = true;
+
+  
+  services = {
+  };
+
+
+  i18n.inputMethod = {
+    # NixOS 24.11 起的用法
+    enable = true;
+    type = "fcitx5";
+
+    fcitx5 = {
+      waylandFrontend = true;
+      ignoreUserConfig = true;    # 吃下面的 settings，不用 user 的
+      addons = with pkgs; [
+        fcitx5-gtk
+        qt6Packages.fcitx5-configtool
+        qt6Packages.fcitx5-chinese-addons
+        fcitx5-chewing    # 新酷音
+        fcitx5-table-extra
+        fcitx5-fluent # 主题皮肤
+        fcitx5-rime
+        rime-data
+      ];
+      settings = {
+        inputMethod = {
+          "Groups/0" = {
+            Name = "Default";
+            "Default Layout" = "us";
+            DefaultIM = "keyboard-us";
+          };
+          "Groups/0/Items/0".Name = "keyboard-us";
+          "Groups/0/Items/1".Name = "canjie";
+          "Groups/0/Items/2".Name = "rime";
+          "Groups/0/Items/3".Name = "chewing";
+        };
+      };
+    };
+  };
+
 }

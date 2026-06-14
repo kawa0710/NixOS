@@ -23,6 +23,11 @@
       url = "github:oxcl/nix-flake-helium-browser/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    antigravity-nix = {
+      url = "github:jacopone/antigravity-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nixpkgs, home-manager, noctalia, ... }@inputs: {
