@@ -52,6 +52,51 @@
     LC_TIME = "zh_TW.UTF-8";
   };
 
+  # Enable OpenGL and NVIDIA Drivers
+  # services.xserver.videoDrivers = [ "nvidia" ];
+
+  # hardware.nvidia = {
+  #   modesetting.enable = true;
+  #   powerManagement.enable = true;
+  #   powerManagement.finegrained = false; # Set to true ONLY if you have severe battery drain and a compatible GPU
+  #   open = false; # Set to true if you are using RTX 20-series or newer and prefer the open-source kernel module
+  #   package = config.boot.kernelPackages.nvidiaPackages.stable;
+  
+  #   # Hybrid Graphics (Optimus Prime) Configuration
+  #   prime = {
+  #     offload = {
+  #       enable = true;
+  #       enableOffloadCmd = true;
+  #     };
+    
+  #     # Replace these with your actual Bus IDs from Step 2
+  #     intelBusId = "PCI:0:2:0";
+  #     nvidiaBusId = "PCI:1:0:0";
+  #   };
+  # };
+
+  # === NVIDIA CONFIGURATION FOR LAPTOP ===
+  hardware.graphics = {
+    enable = true;
+    enable32Bit = true;
+  };
+
+  services.xserver.videoDrivers = [ "nvidia" ];
+
+  hardware.nvidia = {
+    modesetting.enable = true;
+    open = true;
+    nvidiaSettings = true;
+    package = config.boot.kernelPackages.nvidiaPackages.stable;
+
+    prime = {
+      sync.enable = true; # The stable solution
+      intelBusId = "PCI:0:2:0";
+      nvidiaBusId = "PCI:1:0:0";
+    };
+  };
+  # === END OF NVIDIA CONFIGURATION ===
+
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
   services.xserver = {
@@ -186,6 +231,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "26.05"; # Did you read the comment?
-
+  system.stateVersion = "26.05"; # Did you read the comment?  
 }

@@ -11,9 +11,13 @@
 
   home.packages = with pkgs; [
     alacritty
-    # xdg-utils
-    # wl-clipboardi
+    btop
+
     nemo
+    nemo-fileroller
+    file-roller # 這是實際處理壓縮檔的程式
+    p7zip       # 確保系統裝有 7z 的支援庫
+    
     nautilus # GNOME portal 依賴的檔案管理器
     # thunar
     kitty
@@ -26,7 +30,8 @@
     inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
     # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
 
-    bottles
+    # bottles # nixos 的不能建 bottle
+    flatpak
     winboat
     libreoffice
     sourcegit
@@ -148,4 +153,28 @@
     };
   };
 
+ # 壓縮成 7z
+  home.file.".local/share/nemo/actions/compress-7z.nemo_action" = {
+    text = ''
+      [Nemo Action]
+      Name=Compress to .7z
+      Exec=7z a "%F.7z" "%F"
+      Selection=Any
+      Extensions=any;
+      Quote=double
+    '';
+  };
+
+  # 解壓 7z
+  home.file.".local/share/nemo/actions/extract-7z.nemo_action" = {
+    text = ''
+      [Nemo Action]
+      Name=Extract here
+      Exec=file-roller -h %F
+      Selection=S
+      Extensions=zip;7z;ar;cbz;cpio;exe;iso;jar;tar;7z;tar.Z;tar.bz2;tar.gz;tar.lz;tar.lzma;tar.xz;
+      Icon-Name=application-x-7z-compressed
+      Quote=double
+    '';
+  };
 }
