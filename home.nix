@@ -22,9 +22,9 @@
     mousepad
     ksnip
     
-    # inputs.antigravity-nix.packages.${pkgs.system}.default
-    inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-ide
-    # inputs.antigravity-nix.packages.${pkgs.system}.google-antigravity-cli
+    # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
+    # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
 
     bottles
     winboat
@@ -33,6 +33,7 @@
     zed-editor
     gpu-screen-recorder
     gpu-screen-recorder-gtk
+    vesktop
   ];
 
   programs.git = {
