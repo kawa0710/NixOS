@@ -13,13 +13,12 @@
     alacritty
     btop
 
-    nemo
-    nemo-fileroller
-    file-roller # 這是實際處理壓縮檔的程式
-    p7zip       # 確保系統裝有 7z 的支援庫
-    
-    nautilus # GNOME portal 依賴的檔案管理器
+    nemo-with-extensions
+    file-roller        # 後台實際執行壓縮/解壓縮的引擎
+    p7zip              # 確保系統裝有 7z 的支援庫
+    unzip              # 確保 zip 解壓支援    
     # thunar
+
     kitty
     grc
     xwayland-satellite # xwayland support
@@ -40,6 +39,30 @@
     gpu-screen-recorder-gtk
     vesktop
   ];
+
+  home.sessionVariables = {
+    # 告訴 Nemo 去哪裡尋找右鍵擴充套件（NixOS 系統與使用者環境路徑）
+    NEMO_EXTENSION_DIR = "${pkgs.nemo-fileroller}/lib/nemo/extensions-3.0";
+  };
+  
+  xdg.desktopEntries.nemo = {
+    name = "Nemo";
+    exec = "${pkgs.nemo-with-extensions}/bin/nemo"; # 確保指向包裝版
+  };
+  
+  xdg.mimeApps = {
+    enable = true;
+    defaultApplications = {
+      # 將所有資料夾的開啟方式預設為 Nemo
+      "inode/directory" = [ "nemo.desktop" ];
+      "application/zip" = [ "org.gnome.FileRoller.desktop" ];
+      "application/x-tar" = [ "org.gnome.FileRoller.desktop" ];
+      "application/x-7z-compressed" = [ "org.gnome.FileRoller.desktop" ];
+      "application/x-rar" = [ "org.gnome.FileRoller.desktop" ];
+      "application/x-7z-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+      "application/x-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+    };
+  };
 
   programs.git = {
     enable = true;
@@ -114,11 +137,6 @@
 
   programs.home-manager.enable = true;
 
-  
-  services = {
-  };
-
-
   i18n.inputMethod = {
     # NixOS 24.11 起的用法
     enable = true;
@@ -153,28 +171,28 @@
     };
   };
 
- # 壓縮成 7z
-  home.file.".local/share/nemo/actions/compress-7z.nemo_action" = {
-    text = ''
-      [Nemo Action]
-      Name=Compress to .7z
-      Exec=7z a "%F.7z" "%F"
-      Selection=Any
-      Extensions=any;
-      Quote=double
-    '';
-  };
+  # 壓縮成 7z
+  # home.file.".local/share/nemo/actions/compress-7z.nemo_action" = {
+  #   text = ''
+  #     [Nemo Action]
+  #     Name=Compress to .7z
+  #     Exec=7z a "%F.7z" "%F"
+  #     Selection=Any
+  #     Extensions=any;
+  #     Quote=double
+  #   '';
+  # };
 
   # 解壓 7z
-  home.file.".local/share/nemo/actions/extract-7z.nemo_action" = {
-    text = ''
-      [Nemo Action]
-      Name=Extract here
-      Exec=file-roller -h %F
-      Selection=S
-      Extensions=zip;7z;ar;cbz;cpio;exe;iso;jar;tar;7z;tar.Z;tar.bz2;tar.gz;tar.lz;tar.lzma;tar.xz;
-      Icon-Name=application-x-7z-compressed
-      Quote=double
-    '';
-  };
+  # home.file.".local/share/nemo/actions/extract-7z.nemo_action" = {
+  #   text = ''
+  #     [Nemo Action]
+  #     Name=Extract here
+  #     Exec=file-roller -h %F
+  #     Selection=S
+  #     Extensions=zip;7z;ar;cbz;cpio;exe;iso;jar;tar;7z;tar.Z;tar.bz2;tar.gz;tar.lz;tar.lzma;tar.xz;
+  #     Icon-Name=application-x-7z-compressed
+  #     Quote=double
+  #   '';
+  # };
 }

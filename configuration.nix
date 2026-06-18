@@ -5,10 +5,34 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  imports = [ # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+  ];
+
+  # List packages installed in system profile. To search, run:
+  # $ nix search wget
+  environment.systemPackages = with pkgs; [
+  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    helix
+    wget
+    curl
+    fzf
+    ripgrep
+    fd
+    bat
+    # --- niri setup begin ---
+    tuigreet
+    lxqt.lxqt-policykit
+    # --- niri setup begin ---
+
+    libsecret
+  ];
+
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";            # Or use a specific time like "03:15"
+    options = "--delete-older-than 30d";
+  };
 
   # Bootloader.
   boot.loader.systemd-boot.enable = true;
@@ -123,25 +147,6 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    helix
-    wget
-    curl
-    fzf
-    ripgrep
-    fd
-    bat
-    # --- niri setup begin ---
-    tuigreet
-    lxqt.lxqt-policykit
-    # --- niri setup begin ---
-
-    libsecret
-  ];
-
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
   ];
@@ -186,7 +191,7 @@
   };
 
   systemd.user.services.niri.enableDefaultPath = false;
-
+  services.gvfs.enable = true; # Nemo 掛載 USB 或網路硬碟
   security.polkit.enable = true; # polkit
   services.gnome.gnome-keyring.enable = true; # secret service
 
@@ -197,6 +202,7 @@
       pkgs.xdg-desktop-portal-gnome
       pkgs.xdg-desktop-portal-gtk
     ];
+    config.common.default = [ "gnome" ];
     config.niri = {
       "org.freedesktop.impl.portal.FileChooser" = [ "gnome" "gtk" ];
       "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" "gtk" ];
