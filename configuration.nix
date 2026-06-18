@@ -136,12 +136,29 @@
     variant = "";
   };
 
+  # 新增podman
+  virtualisation = {
+    containers.enable = true;
+    podman = {
+      enable = true;
+      # Creates a 'docker' alias so WinBoat can find necessary commands
+      dockerCompat = true; 
+      defaultNetwork.settings.dns_enabled = true;
+    };
+  };
+
+  # 啟用核心非特權名稱空間 for podman
+  boot.kernel.sysctl."kernel.unprivileged_userns_clone" = 1;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users."kawa" = {
     isNormalUser = true;
     description = "Kawa";
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" ];
-    packages = with pkgs; [];
+    extraGroups = [ "networkmanager" "wheel" "video" "audio" "podman" "docker" ];
+    # packages = with pkgs; [];
+    # 若要使用免 Root (Rootless) 模式，請務必配置 subUid/subGid 區間
+    subUidRanges = [{ startUid = 100000; count = 65536; }];
+    subGidRanges = [{ startGid = 100000; count = 65536; }];
   };
 
   # Allow unfree packages

@@ -648,6 +648,7 @@ binds {
     Mod+B hotkey-overlay-title="Open a Browser: helium" { spawn "helium"; }
 
     Mod+Shift+V { spawn-sh "noctalia msg panel-toggle clipboard"; }
+    Mod+Shift+Q { spawn-sh "noctalia msg panel-toggle session"; }
 }
 
 environment {

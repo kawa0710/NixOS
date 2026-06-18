@@ -31,7 +31,10 @@
 
     # bottles # nixos 的不能建 bottle
     flatpak
+    
     winboat
+    podman-compose
+
     libreoffice
     sourcegit
     zed-editor
@@ -103,6 +106,7 @@
     enable = true;
     interactiveShellInit = ''
       set fish_greeting # Disable greeting
+      set -e DBUS_SESSION_BUS_ADDRESS
     '';
     plugins = [
       # Enable a plugin (here grc for colorized command output) from nixpkgs
