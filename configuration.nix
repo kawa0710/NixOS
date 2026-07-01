@@ -36,6 +36,20 @@
     input-remapper
   ];
 
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+
+  services.printing = {
+    enable = true;
+    drivers = with pkgs; [
+      cups-filters
+      cups-browsed
+    ];
+  };
+
   systemd.services.StartInputRemapperDaemonAtLogin = {
     enable = true;
     description = "Start input-remapper daemon after login";
