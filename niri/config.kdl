@@ -698,10 +698,18 @@ layer-rule {
 
 
 // 1. 強制將 Wayland 變數塞進 D-Bus 啟用環境
-spawn-at-startup "dbus-update-activation-environment" "--all"
+// 非systemd
+// spawn-at-startup "dbus-update-activation-environment" "--all"
+
+// 也一起同步給systemd
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "--all"
+// spawn-at-startup "systemctl" "--user" "import-environment" "DISPLAY" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_DATA_DIRS"
 
 // 2. 延遲 1 秒，等桌面穩定後重啟一次 portal 確保它們使用變數
-spawn-at-startup "sh" "-c" "sleep 1 && killall -q xdg-desktop-portal xdg-desktop-portal-gnome xdg-desktop-portal-gtk; /usr/lib/xdg-desktop-portal &"
+// artix 使用
+// spawn-at-startup "sh" "-c" "sleep 1 && killall -q xdg-desktop-portal xdg-desktop-portal-gnome xdg-desktop-portal-gtk; /usr/lib/xdg-desktop-portal &"
+
+// spawn-at-startup "sh" "-c" "sleep 1 && systemctl --user restart xdg-desktop-portal.service"
 
 // spawn-at-startup "fcitx5" "-d"
 spawn-at-startup "sh" "-c" "sleep 3 && fcitx5 -d --replace"

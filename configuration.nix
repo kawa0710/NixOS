@@ -5,15 +5,16 @@
 { config, pkgs, ... }:
 
 {
-  imports = [ # Include the results of the hardware scan.
+  imports = [
+    # Include the results of the hardware scan.
     ./hardware-configuration.nix
   ];
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    helix
+    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    # helix
     wget
     curl
     fzf
@@ -30,7 +31,7 @@
 
   nix.gc = {
     automatic = true;
-    dates = "weekly";            # Or use a specific time like "03:15"
+    dates = "weekly"; # Or use a specific time like "03:15"
     options = "--delete-older-than 30d";
   };
 
@@ -41,7 +42,8 @@
   # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  boot.initrd.luks.devices."luks-cce3f8be-1366-44f4-82ea-242cec24b6b6".device = "/dev/disk/by-uuid/cce3f8be-1366-44f4-82ea-242cec24b6b6";
+  boot.initrd.luks.devices."luks-cce3f8be-1366-44f4-82ea-242cec24b6b6".device =
+    "/dev/disk/by-uuid/cce3f8be-1366-44f4-82ea-242cec24b6b6";
   networking.hostName = "KawaNixos"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
@@ -85,14 +87,14 @@
   #   powerManagement.finegrained = false; # Set to true ONLY if you have severe battery drain and a compatible GPU
   #   open = false; # Set to true if you are using RTX 20-series or newer and prefer the open-source kernel module
   #   package = config.boot.kernelPackages.nvidiaPackages.stable;
-  
+
   #   # Hybrid Graphics (Optimus Prime) Configuration
   #   prime = {
   #     offload = {
   #       enable = true;
   #       enableOffloadCmd = true;
   #     };
-    
+
   #     # Replace these with your actual Bus IDs from Step 2
   #     intelBusId = "PCI:0:2:0";
   #     nvidiaBusId = "PCI:1:0:0";
@@ -142,7 +144,7 @@
     podman = {
       enable = true;
       # Creates a 'docker' alias so WinBoat can find necessary commands
-      dockerCompat = true; 
+      dockerCompat = true;
       defaultNetwork.settings.dns_enabled = true;
     };
   };
@@ -154,11 +156,28 @@
   users.users."kawa" = {
     isNormalUser = true;
     description = "Kawa";
-    extraGroups = [ "networkmanager" "wheel" "video" "audio" "podman" "docker" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "audio"
+      "podman"
+      "docker"
+    ];
     # packages = with pkgs; [];
     # 若要使用免 Root (Rootless) 模式，請務必配置 subUid/subGid 區間
-    subUidRanges = [{ startUid = 100000; count = 65536; }];
-    subGidRanges = [{ startGid = 100000; count = 65536; }];
+    subUidRanges = [
+      {
+        startUid = 100000;
+        count = 65536;
+      }
+    ];
+    subGidRanges = [
+      {
+        startGid = 100000;
+        count = 65536;
+      }
+    ];
   };
 
   # Allow unfree packages
@@ -168,7 +187,10 @@
     nerd-fonts.jetbrains-mono
   ];
 
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = [
+    "nix-command"
+    "flakes"
+  ];
 
   programs.bash = {
     enable = true;
@@ -184,8 +206,6 @@
   # programs.fish = {
   #   enable = true;
   # };
-  
-
 
   # --- niri setup begin ---
   # Sound
@@ -202,7 +222,7 @@
     settings = {
       default_session = {
         command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'dbus-run-session niri --session'";
-        user="greeter";
+        user = "greeter";
       };
     };
   };
@@ -229,6 +249,15 @@
   
   # --- niri setup end ---
 
+  services.logind.settings = {
+    Login = {
+      HandleLidSwitch = "ignore";
+      HandleLidSwitchExternalPower = "ignore";
+    };
+  };
+
+  services.dbus.enable = true;
+
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
   # programs.mtr.enable = true;
@@ -254,5 +283,5 @@
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "26.05"; # Did you read the comment?  
+  system.stateVersion = "26.05"; # Did you read the comment?
 }
