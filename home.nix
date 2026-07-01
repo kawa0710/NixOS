@@ -51,6 +51,8 @@
     gpu-screen-recorder-gtk
     vesktop
     remmina
+    bruno
+    jq
   ];
 
   programs.helix = {

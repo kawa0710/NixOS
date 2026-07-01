@@ -33,7 +33,7 @@
 
     libsecret
 
-    input-remapper
+    # input-remapper
   ];
 
   services.avahi = {
@@ -50,67 +50,70 @@
     ];
   };
 
-  systemd.services.StartInputRemapperDaemonAtLogin = {
-    enable = true;
-    description = "Start input-remapper daemon after login";
-    unitConfig = {
-      Type = "simple";
-    };
-    script = lib.getExe (
-      pkgs.writeShellApplication {
-        name = "start-input-mapper-daemon";
-        runtimeInputs = with pkgs; [
-          input-remapper
-          procps
-          su
-        ];
-        text = ''
-          until pgrep -u pierre; do
-            sleep 1
-          done
-          sleep 2
-          until [ $(pgrep -c -u root "input-remapper") -eq 4 ]; do
-            input-remapper-service&
-            sleep 1
-            input-remapper-helper&
-            sleep 1
-          done
-          su pierre -c "input-remapper-control --command stop-all"
-          su pierre -c "input-remapper-control --command autoload"
-          sleep infinity
-        '';
-      }
-    );
-    wantedBy = [ "default.target" ];
-  };
+  # 啟用 input-remapper 服務（這會自動處理權限與後台守護進程）
+  services.input-remapper.enable = true;
 
-  systemd.services.ReloadInputRemapperAfterSleep = {
-    enable = true;
-    description = "Reload input-remapper config after sleep";
-    after = [ "suspend.target" ];
-    unitConfig = {
-      Type = "forking";
-    };
-    serviceConfig.User = "pierre";
-    script = lib.getExe (
-      pkgs.writeShellApplication {
-        name = "reload-input-mapper-config";
-        runtimeInputs = with pkgs; [
-          input-remapper
-          ps
-          gawk
-        ];
-        text = ''
-          until [[ $(ps aux | awk '$11~"input-remapper" && $12="<defunct>" {print $0}' | wc -l) -eq 0 ]]; do
-            input-remapper-control --command stop-all
-            input-remapper-control --command autoload
-            sleep 1
-          done
-        '';
-      }
-    );
-    wantedBy = [ "suspend.target" ];
-  };
+  # systemd.services.StartInputRemapperDaemonAtLogin = {
+  #   enable = true;
+  #   description = "Start input-remapper daemon after login";
+  #   unitConfig = {
+  #     Type = "simple";
+  #   };
+  #   script = lib.getExe (
+  #     pkgs.writeShellApplication {
+  #       name = "start-input-mapper-daemon";
+  #       runtimeInputs = with pkgs; [
+  #         input-remapper
+  #         procps
+  #         su
+  #       ];
+  #       text = ''
+  #         until pgrep -u pierre; do
+  #           sleep 1
+  #         done
+  #         sleep 2
+  #         until [ $(pgrep -c -u root "input-remapper") -eq 4 ]; do
+  #           input-remapper-service&
+  #           sleep 1
+  #           input-remapper-helper&
+  #           sleep 1
+  #         done
+  #         su pierre -c "input-remapper-control --command stop-all"
+  #         su pierre -c "input-remapper-control --command autoload"
+  #         sleep infinity
+  #       '';
+  #     }
+  #   );
+  #   wantedBy = [ "default.target" ];
+  # };
+
+  # systemd.services.ReloadInputRemapperAfterSleep = {
+  #   enable = true;
+  #   description = "Reload input-remapper config after sleep";
+  #   after = [ "suspend.target" ];
+  #   unitConfig = {
+  #     Type = "forking";
+  #   };
+  #   serviceConfig.User = "pierre";
+  #   script = lib.getExe (
+  #     pkgs.writeShellApplication {
+  #       name = "reload-input-mapper-config";
+  #       runtimeInputs = with pkgs; [
+  #         input-remapper
+  #         ps
+  #         gawk
+  #       ];
+  #       text = ''
+  #         until [[ $(ps aux | awk '$11~"input-remapper" && $12="<defunct>" {print $0}' | wc -l) -eq 0 ]]; do
+  #           input-remapper-control --command stop-all
+  #           input-remapper-control --command autoload
+  #           sleep 1
+  #         done
+  #       '';
+  #     }
+  #   );
+  #   wantedBy = [ "suspend.target" ];
+  # };
 
   nix.gc = {
     automatic = true;
@@ -246,6 +249,8 @@
       "audio"
       "podman"
       "docker"
+      "input"
+      "uinput"
     ];
     # packages = with pkgs; [];
     # 若要使用免 Root (Rootless) 模式，請務必配置 subUid/subGid 區間
