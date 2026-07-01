@@ -2,7 +2,12 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
-{ config, pkgs, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 {
   imports = [
@@ -27,7 +32,71 @@
     # --- niri setup begin ---
 
     libsecret
+
+    input-remapper
   ];
+
+  systemd.services.StartInputRemapperDaemonAtLogin = {
+    enable = true;
+    description = "Start input-remapper daemon after login";
+    unitConfig = {
+      Type = "simple";
+    };
+    script = lib.getExe (
+      pkgs.writeShellApplication {
+        name = "start-input-mapper-daemon";
+        runtimeInputs = with pkgs; [
+          input-remapper
+          procps
+          su
+        ];
+        text = ''
+          until pgrep -u pierre; do
+            sleep 1
+          done
+          sleep 2
+          until [ $(pgrep -c -u root "input-remapper") -eq 4 ]; do
+            input-remapper-service&
+            sleep 1
+            input-remapper-helper&
+            sleep 1
+          done
+          su pierre -c "input-remapper-control --command stop-all"
+          su pierre -c "input-remapper-control --command autoload"
+          sleep infinity
+        '';
+      }
+    );
+    wantedBy = [ "default.target" ];
+  };
+
+  systemd.services.ReloadInputRemapperAfterSleep = {
+    enable = true;
+    description = "Reload input-remapper config after sleep";
+    after = [ "suspend.target" ];
+    unitConfig = {
+      Type = "forking";
+    };
+    serviceConfig.User = "pierre";
+    script = lib.getExe (
+      pkgs.writeShellApplication {
+        name = "reload-input-mapper-config";
+        runtimeInputs = with pkgs; [
+          input-remapper
+          ps
+          gawk
+        ];
+        text = ''
+          until [[ $(ps aux | awk '$11~"input-remapper" && $12="<defunct>" {print $0}' | wc -l) -eq 0 ]]; do
+            input-remapper-control --command stop-all
+            input-remapper-control --command autoload
+            sleep 1
+          done
+        '';
+      }
+    );
+    wantedBy = [ "suspend.target" ];
+  };
 
   nix.gc = {
     automatic = true;
@@ -241,12 +310,21 @@
     ];
     config.common.default = [ "gnome" ];
     config.niri = {
-      "org.freedesktop.impl.portal.FileChooser" = [ "gnome" "gtk" ];
-      "org.freedesktop.impl.portal.ScreenCast" = [ "gnome" "gtk" ];
-      "org.freedesktop.impl.portal.Screenshot" = [ "gnome" "gtk" ];
+      "org.freedesktop.impl.portal.FileChooser" = [
+        "gnome"
+        "gtk"
+      ];
+      "org.freedesktop.impl.portal.ScreenCast" = [
+        "gnome"
+        "gtk"
+      ];
+      "org.freedesktop.impl.portal.Screenshot" = [
+        "gnome"
+        "gtk"
+      ];
     };
   };
-  
+
   # --- niri setup end ---
 
   services.logind.settings = {
