@@ -702,8 +702,12 @@ layer-rule {
 // spawn-at-startup "dbus-update-activation-environment" "--all"
 
 // 也一起同步給systemd
-spawn-at-startup "dbus-update-activation-environment" "--systemd" "--all"
+// spawn-at-startup "dbus-update-activation-environment" "--systemd" "--all"
 // spawn-at-startup "systemctl" "--user" "import-environment" "DISPLAY" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "XDG_DATA_DIRS"
+
+// nixos 專用
+spawn-at-startup "dbus-update-activation-environment" "--systemd" "DISPLAY" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP" "GTK_USE_PORTAL=1"
+// spawn-at-startup "dbus-update-activation-environment" "--systemd" "DISPLAY" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
 
 // 2. 延遲 1 秒，等桌面穩定後重啟一次 portal 確保它們使用變數
 // artix 使用
