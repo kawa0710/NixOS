@@ -107,6 +107,17 @@
     exec = "${pkgs.nemo-with-extensions}/bin/nemo"; # 確保指向包裝版
   };
 
+  home.file.".local/share/nemo/actions/open_kitty.nemo_action".text = ''
+    [Nemo Action]
+    Name=Open in Kitty
+    Comment=Open Kitty terminal in the current directory
+    Exec=kitty --working-directory=%F
+    Icon-Name=kitty
+    Selection=any
+    Extensions=dir;
+    Quote=custom
+  '';
+
   # nixos 安裝的 ksnip.desktop 路徑有錯
   xdg.desktopEntries = {
     # 使用 "org.ksnip.ksnip" 作為 Key，確保生成的檔名完全一致
@@ -222,7 +233,7 @@
 
   programs.helium = {
     enable = true;
-    # flags = [ "" ];
+    flags = [ "--password-store=basic" ];
   };
 
   programs.fish = {
