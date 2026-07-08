@@ -53,68 +53,6 @@
   # 啟用 input-remapper 服務（這會自動處理權限與後台守護進程）
   services.input-remapper.enable = true;
 
-  # systemd.services.StartInputRemapperDaemonAtLogin = {
-  #   enable = true;
-  #   description = "Start input-remapper daemon after login";
-  #   unitConfig = {
-  #     Type = "simple";
-  #   };
-  #   script = lib.getExe (
-  #     pkgs.writeShellApplication {
-  #       name = "start-input-mapper-daemon";
-  #       runtimeInputs = with pkgs; [
-  #         input-remapper
-  #         procps
-  #         su
-  #       ];
-  #       text = ''
-  #         until pgrep -u pierre; do
-  #           sleep 1
-  #         done
-  #         sleep 2
-  #         until [ $(pgrep -c -u root "input-remapper") -eq 4 ]; do
-  #           input-remapper-service&
-  #           sleep 1
-  #           input-remapper-helper&
-  #           sleep 1
-  #         done
-  #         su pierre -c "input-remapper-control --command stop-all"
-  #         su pierre -c "input-remapper-control --command autoload"
-  #         sleep infinity
-  #       '';
-  #     }
-  #   );
-  #   wantedBy = [ "default.target" ];
-  # };
-
-  # systemd.services.ReloadInputRemapperAfterSleep = {
-  #   enable = true;
-  #   description = "Reload input-remapper config after sleep";
-  #   after = [ "suspend.target" ];
-  #   unitConfig = {
-  #     Type = "forking";
-  #   };
-  #   serviceConfig.User = "pierre";
-  #   script = lib.getExe (
-  #     pkgs.writeShellApplication {
-  #       name = "reload-input-mapper-config";
-  #       runtimeInputs = with pkgs; [
-  #         input-remapper
-  #         ps
-  #         gawk
-  #       ];
-  #       text = ''
-  #         until [[ $(ps aux | awk '$11~"input-remapper" && $12="<defunct>" {print $0}' | wc -l) -eq 0 ]]; do
-  #           input-remapper-control --command stop-all
-  #           input-remapper-control --command autoload
-  #           sleep 1
-  #         done
-  #       '';
-  #     }
-  #   );
-  #   wantedBy = [ "suspend.target" ];
-  # };
-
   nix.gc = {
     automatic = true;
     dates = "weekly"; # Or use a specific time like "03:15"
@@ -163,29 +101,6 @@
     LC_TELEPHONE = "zh_TW.UTF-8";
     LC_TIME = "zh_TW.UTF-8";
   };
-
-  # Enable OpenGL and NVIDIA Drivers
-  # services.xserver.videoDrivers = [ "nvidia" ];
-
-  # hardware.nvidia = {
-  #   modesetting.enable = true;
-  #   powerManagement.enable = true;
-  #   powerManagement.finegrained = false; # Set to true ONLY if you have severe battery drain and a compatible GPU
-  #   open = false; # Set to true if you are using RTX 20-series or newer and prefer the open-source kernel module
-  #   package = config.boot.kernelPackages.nvidiaPackages.stable;
-
-  #   # Hybrid Graphics (Optimus Prime) Configuration
-  #   prime = {
-  #     offload = {
-  #       enable = true;
-  #       enableOffloadCmd = true;
-  #     };
-
-  #     # Replace these with your actual Bus IDs from Step 2
-  #     intelBusId = "PCI:0:2:0";
-  #     nvidiaBusId = "PCI:1:0:0";
-  #   };
-  # };
 
   # === NVIDIA CONFIGURATION FOR LAPTOP ===
   hardware.graphics = {
@@ -271,8 +186,13 @@
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  fonts.fontDir.enable = true;
+
   fonts.packages = with pkgs; [
     nerd-fonts.jetbrains-mono
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-cjk-serif
   ];
 
   nix.settings.experimental-features = [

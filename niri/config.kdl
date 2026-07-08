@@ -719,3 +719,4 @@ spawn-at-startup "dbus-update-activation-environment" "--systemd" "DISPLAY" "WAY
 spawn-at-startup "sh" "-c" "sleep 3 && fcitx5 -d --replace"
 spawn-at-startup "noctalia"
 spawn-at-startup "lxqt-policykit-agent"
+spawn-at-startup "input-remapper-control" "--command" "autoload"

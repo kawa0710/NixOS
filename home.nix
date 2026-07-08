@@ -45,6 +45,7 @@
     podman-compose
 
     libreoffice
+    onlyoffice-desktopeditors
     sourcegit
     zed-editor
     gpu-screen-recorder
@@ -106,6 +107,7 @@
     exec = "${pkgs.nemo-with-extensions}/bin/nemo"; # 確保指向包裝版
   };
 
+  # nixos 安裝的 ksnip.desktop 路徑有錯
   xdg.desktopEntries = {
     # 使用 "org.ksnip.ksnip" 作為 Key，確保生成的檔名完全一致
     "org.ksnip.ksnip" = {
@@ -248,14 +250,6 @@
     ];
   };
 
-  # programs.antigravity = {
-  #   enable = true;
-  #   profiles.default.extensions = with pkgs.vscode-extensions; [
-  #     kenan-salar.calmppuccin-vscode
-  #     yzhang.markdown-all-in-one
-  #   ];
-  # };
-
   programs.yazi = {
     enable = true;
     plugins = {
@@ -299,28 +293,4 @@
     };
   };
 
-  # 壓縮成 7z
-  # home.file.".local/share/nemo/actions/compress-7z.nemo_action" = {
-  #   text = ''
-  #     [Nemo Action]
-  #     Name=Compress to .7z
-  #     Exec=7z a "%F.7z" "%F"
-  #     Selection=Any
-  #     Extensions=any;
-  #     Quote=double
-  #   '';
-  # };
-
-  # 解壓 7z
-  # home.file.".local/share/nemo/actions/extract-7z.nemo_action" = {
-  #   text = ''
-  #     [Nemo Action]
-  #     Name=Extract here
-  #     Exec=file-roller -h %F
-  #     Selection=S
-  #     Extensions=zip;7z;ar;cbz;cpio;exe;iso;jar;tar;7z;tar.Z;tar.bz2;tar.gz;tar.lz;tar.lzma;tar.xz;
-  #     Icon-Name=application-x-7z-compressed
-  #     Quote=double
-  #   '';
-  # };
 }
