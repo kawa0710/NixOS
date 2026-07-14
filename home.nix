@@ -63,6 +63,40 @@
   home.homeDirectory = lib.mkForce "/home/kawa";
   home.stateVersion = "26.05";
 
+  # 啟用 Syncthing 服務
+  services.syncthing = {
+    enable = true;
+
+    # 強制使用 Home Manager 的設定覆蓋 GUI 手動修改的內容
+    overrideFolders = true;
+    overrideDevices = true;
+
+    # 定義遠端裝置
+    settings.devices = {
+      "Kawa2021" = {
+        id = "Q4W4WEM-GAUZKXF-EQUNTBG-EKFL6WY-QKZK43P-6XTOZNE-KSICVNU-EAVYVAM"; # 你的遠端裝置 ID
+        name = "Kawa2021"; # 可選：方便識別的自訂名稱
+      };
+    };
+
+    # 定義同步資料夾
+    settings.folders = {
+      "oz3je-t5qbk" = {
+        # 設定要同步的本機路徑
+        path = "/run/media/kawa/Transcend/工作";
+
+        # 指定要同步給哪些裝置（對應上面 devices 設定的名稱）
+        devices = [ "Kawa2021" ];
+
+        # 設定同步類型為「僅傳送」(Send Only)
+        type = "sendonly";
+
+        # 自訂在 Syncthing GUI 上顯示的資料夾名稱
+        label = "工作";
+      };
+    };
+  };
+
   programs.helix = {
     enable = true;
     settings = {
