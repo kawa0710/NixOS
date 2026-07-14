@@ -6,24 +6,22 @@
   ...
 }:
 {
-  imports = [
-    inputs.niri.homeModules.niri
-    inputs.noctalia.homeModules.default
-    inputs.helium.homeModules.default
-  ];
-  home.username = "kawa";
-  home.homeDirectory = lib.mkForce "/home/kawa";
-  home.stateVersion = "26.05";
-
   home.packages = with pkgs; [
+    trayscale
+    rustdesk-flutter
+
     alacritty
     btop
 
-    nemo-with-extensions
     file-roller # 後台實際執行壓縮/解壓縮的引擎
     p7zip # 確保系統裝有 7z 的支援庫
     unzip # 確保 zip 解壓支援
-    # thunar
+
+    # Thunar 主程式
+    thunar
+    # 常用外掛
+    thunar-archive-plugin # 解壓縮選單支援
+    thunar-volman # 自動掛載裝置支援
 
     # 確保有 Qt 的輸入法內聯組件
     libsForQt5.fcitx5-qt
@@ -56,6 +54,15 @@
     jq
   ];
 
+  imports = [
+    inputs.niri.homeModules.niri
+    inputs.noctalia.homeModules.default
+    inputs.helium.homeModules.default
+  ];
+  home.username = "kawa";
+  home.homeDirectory = lib.mkForce "/home/kawa";
+  home.stateVersion = "26.05";
+
   programs.helix = {
     enable = true;
     settings = {
@@ -85,9 +92,6 @@
   };
 
   home.sessionVariables = {
-    # 告訴 Nemo 去哪裡尋找右鍵擴充套件（NixOS 系統與使用者環境路徑）
-    NEMO_EXTENSION_DIR = "${pkgs.nemo-fileroller}/lib/nemo/extensions-3.0";
-
     # 讓 Gtk 應用程式（如 Chrome, Firefox）支援 Fcitx5
     GTK_IM_MODULE = "fcitx";
 
@@ -101,22 +105,6 @@
     SDL_IM_MODULE = "fcitx";
     GLFW_IM_MODULE = "ibus"; # 部分新版 GLFW 應用（如 Alacritty）透過 ibus 協議接 Fcitx5
   };
-
-  xdg.desktopEntries.nemo = {
-    name = "Nemo";
-    exec = "${pkgs.nemo-with-extensions}/bin/nemo"; # 確保指向包裝版
-  };
-
-  home.file.".local/share/nemo/actions/open_kitty.nemo_action".text = ''
-    [Nemo Action]
-    Name=Open in Kitty
-    Comment=Open Kitty terminal in the current directory
-    Exec=kitty --working-directory=%F
-    Icon-Name=kitty
-    Selection=any
-    Extensions=dir;
-    Quote=custom
-  '';
 
   # nixos 安裝的 ksnip.desktop 路徑有錯
   xdg.desktopEntries = {
@@ -189,8 +177,8 @@
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
-      # 將所有資料夾的開啟方式預設為 Nemo
-      "inode/directory" = [ "nemo.desktop" ];
+      # 將所有資料夾的開啟方式預設為 thunar
+      "inode/directory" = [ "thunar.desktop" ];
       "application/zip" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-tar" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-7z-compressed" = [ "org.gnome.FileRoller.desktop" ];
