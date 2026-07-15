@@ -37,6 +37,9 @@
     # input-remapper
   ];
 
+  # 為了啟用fnm
+  programs.nix-ld.enable = true;
+
   services.auto-cpufreq.enable = true;
 
   # Configure turbo states and performance governors

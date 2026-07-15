@@ -7,6 +7,7 @@
 }:
 {
   home.packages = with pkgs; [
+    fnm
     sourcegit
     dbeaver-bin
     inputs.mark-shot.packages.${pkgs.stdenv.hostPlatform.system}.default
@@ -264,9 +265,14 @@
 
   programs.fish = {
     enable = true;
+    shellAliases = {
+      ls = "ls -lah --color=always --group-directories-first";
+      grep = "grep --color=auto";
+    };
     interactiveShellInit = ''
       set fish_greeting # Disable greeting
       set -e DBUS_SESSION_BUS_ADDRESS
+      fnm env --use-on-cd --shell fish | source
     '';
     plugins = [
       # Enable a plugin (here grc for colorized command output) from nixpkgs
