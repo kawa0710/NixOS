@@ -7,6 +7,10 @@
 }:
 {
   home.packages = with pkgs; [
+    sourcegit
+    dbeaver-bin
+    inputs.mark-shot.packages.${pkgs.stdenv.hostPlatform.system}.default
+    grim
     trayscale
     rustdesk-flutter
 
@@ -140,7 +144,7 @@
     GLFW_IM_MODULE = "ibus"; # 部分新版 GLFW 應用（如 Alacritty）透過 ibus 協議接 Fcitx5
   };
 
-  # nixos 安裝的 ksnip.desktop 路徑有錯
+  # nixos 安裝的 ksnip.desktop 路徑有錯(26.05/26.11)
   xdg.desktopEntries = {
     # 使用 "org.ksnip.ksnip" 作為 Key，確保生成的檔名完全一致
     "org.ksnip.ksnip" = {

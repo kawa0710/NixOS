@@ -649,6 +649,10 @@ binds {
 
     Mod+Shift+V { spawn-sh "noctalia msg panel-toggle clipboard"; }
     Mod+Shift+Q { spawn-sh "noctalia msg panel-toggle session"; }
+
+    Mod+M { spawn-sh "noctalia msg panel-toggle control-center system"; }
+    Mod+Shift+M { spawn-sh "alacritty -e btop"; }
+    Shift+Print { spawn "mark-shot"; }
 }
 
 environment {

@@ -18,8 +18,9 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    # helix
+    fastfetch
+    auto-cpufreq
+
     wget
     curl
     fzf
@@ -35,6 +36,20 @@
 
     # input-remapper
   ];
+
+  services.auto-cpufreq.enable = true;
+
+  # Configure turbo states and performance governors
+  services.auto-cpufreq.settings = {
+    charger = {
+      governor = "performance";
+      turbo = "auto"; # Allows turbo when plugged in
+    };
+    battery = {
+      governor = "powersave";
+      turbo = "auto"; # Adjusts turbo dynamically on battery
+    };
+  };
 
   services.tailscale.enable = true;
   networking.nftables.enable = true;
