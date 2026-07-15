@@ -233,7 +233,7 @@
       user.name = "kawa";
       user.email = "kawa0710@gmail.com";
       http.sslVerify = false;
-      credential.helper = "libsecret";
+      credential.helper = "cache"; # 在記憶體中暫存密碼（預設 15 分鐘，900 秒）
     };
   };
 
