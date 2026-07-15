@@ -237,19 +237,9 @@
     };
   };
 
-  # xdg.configFile."niri/config.kdl".source = ./config.kdl;
-  # xdg.configFile."niri/config.kdl".source = ../dotfiles/niri/config.kdl;
-  # xdg.configFile."niri/config.kdl".source = ./niri/config.kdl;
   xdg.configFile."niri/config.kdl".source =
     config.lib.file.mkOutOfStoreSymlink /home/kawa/nixos/niri/config.kdl;
-  programs.niri = {
-    enable = true;
-    # config = ''
-    # ${builtins.readFile ./niri/config.kdl}
-    # spawn-at-startup "noctalia"
-    # spawn-at-startup "${pkgs.lxqt.lxqt-policykit}/bin/lxqt-policykit-agent"
-    # '';
-  };
+  programs.niri.enable = true;
 
   programs.noctalia = {
     enable = true;

@@ -19,7 +19,6 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     fastfetch
-    auto-cpufreq
 
     wget
     curl
@@ -40,19 +39,25 @@
   # 為了啟用fnm
   programs.nix-ld.enable = true;
 
-  services.auto-cpufreq.enable = true;
+  services.auto-cpufreq = {
+    enable = true;
+    settings = {
+      # 當插著電源時
+      charger = {
+        governor = "performance";
+        turbo = "always"; # 強制開啟 Turbo 模式
+      };
 
-  # Configure turbo states and performance governors
-  services.auto-cpufreq.settings = {
-    charger = {
-      governor = "performance";
-      turbo = "auto"; # Allows turbo when plugged in
-    };
-    battery = {
-      governor = "powersave";
-      turbo = "auto"; # Adjusts turbo dynamically on battery
+      # 當使用電池時
+      battery = {
+        governor = "powersave";
+        turbo = "never";
+      };
     };
   };
+
+  # 避免其他電源管理服務衝突（NixOS 預設的 power-profiles-daemon 可能會與 auto-cpufreq 衝突）
+  services.power-profiles-daemon.enable = false;
 
   services.tailscale.enable = true;
   networking.nftables.enable = true;
