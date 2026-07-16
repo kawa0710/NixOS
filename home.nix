@@ -5,8 +5,22 @@
   lib,
   ...
 }:
+
+let
+  # 將 .NET 組合包宣告成一個變數
+  my-dotnet =
+    with pkgs.dotnetCorePackages;
+    combinePackages [
+      sdk_8_0-bin
+      runtime_8_0-bin
+      aspnetcore_8_0-bin
+    ];
+in
+
 {
   home.packages = with pkgs; [
+    my-dotnet
+
     fnm
     sourcegit
     dbeaver-bin
@@ -38,7 +52,7 @@
     ksnip
 
     # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
+    # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
     # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
 
     # bottles # nixos 的不能建 bottle
@@ -67,6 +81,33 @@
   home.username = "kawa";
   home.homeDirectory = lib.mkForce "/home/kawa";
   home.stateVersion = "26.05";
+
+  programs.vscode = {
+    enable = true;
+    package = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide;
+
+    profiles.default.extensions =
+      (with pkgs.vscode-extensions; [
+        # 1. 這是 nixpkgs 本來就有的套件
+        vue.volar
+      ])
+      ++ [
+        # 2. 這是手動從 Marketplace/OpenVSX 自訂的套件
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          name = "csharp-dev-tools";
+          publisher = "JakubKozera";
+          version = "1.6.1";
+          # 第一次填寫時可以先用 lib.fakeSha256，讓 Nix 報錯並告訴你正確的雜湊值
+          sha256 = "sha256-nIhg/N2XpfiSQRh7uvKHS12KHo5FUWmWTslE8UXslp8=";
+        })
+        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+          name = "calmppuccin-vscode";
+          publisher = "kenan-salar";
+          version = "1.9.9";
+          sha256 = "sha256-KVIg/D3i93z6ajlLv6vKTk9LCAYTm/ukLq0BllOr3K0=";
+        })
+      ];
+  };
 
   # 啟用 Syncthing 服務
   services.syncthing = {
@@ -131,6 +172,12 @@
   };
 
   home.sessionVariables = {
+    # 指向my-dotnet 組合包的 share/dotnet 路徑，讓 IDE 與工具能正確找到 runtime 與 SDK
+    DOTNET_ROOT = "${my-dotnet}/share/dotnet";
+
+    # 使用 `dotnet tool install -g` 安裝全域工具時，會讀取的路徑
+    PATH = "$PATH:$HOME/.dotnet/tools";
+
     # 讓 Gtk 應用程式（如 Chrome, Firefox）支援 Fcitx5
     GTK_IM_MODULE = "fcitx";
 
