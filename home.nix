@@ -19,6 +19,8 @@ in
 
 {
   home.packages = with pkgs; [
+    nerd-fonts.fira-code
+    fira-code
     my-dotnet
 
     fnm
