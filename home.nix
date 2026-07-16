@@ -86,7 +86,8 @@ in
 
   programs.vscode = {
     enable = true;
-    package = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide;
+    package =
+      inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide-no-fhs;
 
     profiles.default.extensions =
       (with pkgs.vscode-extensions; [
@@ -174,6 +175,8 @@ in
   };
 
   home.sessionVariables = {
+    LD_LIBRARY_PATH = "/run/current-system/sw/share/nix-ld/lib\${LD_LIBRARY_PATH:+:\$LD_LIBRARY_PATH}";
+
     # 指向my-dotnet 組合包的 share/dotnet 路徑，讓 IDE 與工具能正確找到 runtime 與 SDK
     DOTNET_ROOT = "${my-dotnet}/share/dotnet";
 

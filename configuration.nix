@@ -38,6 +38,12 @@
 
   # 為了啟用fnm
   programs.nix-ld.enable = true;
+  programs.nix-ld.libraries = with pkgs; [
+    icu
+    # 如果之後有遇到其他 LSP 報錯，也可以加在這裡，例如：
+    # zlib
+    # openssl
+  ];
 
   services.auto-cpufreq = {
     enable = true;
