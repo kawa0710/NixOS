@@ -328,6 +328,7 @@ in
     shellAliases = {
       ls = "ls -lah --color=always --group-directories-first";
       grep = "grep --color=auto";
+      vpnon = "sudo openfortivpn -c /etc/openfortivpn/config";
     };
     interactiveShellInit = ''
       set fish_greeting # Disable greeting

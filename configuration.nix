@@ -18,6 +18,7 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    openfortivpn
     fastfetch
 
     wget
@@ -33,6 +34,15 @@
 
     libsecret
   ];
+
+  environment.etc."openfortivpn/config" = {
+    text = ''
+      host = 59.120.82.208
+      port = 443
+      username = kawa.cheng
+      trusted-cert = f9434e90d10d6ef46cfa9b9fc9b88a48ff29f118e7bb037cd0920ce0dbf5a5f8
+    '';
+  };
 
   # 為了啟用fnm
   programs.nix-ld.enable = true;
