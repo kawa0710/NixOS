@@ -32,8 +32,6 @@
     # --- niri setup begin ---
 
     libsecret
-
-    # input-remapper
   ];
 
   # 為了啟用fnm
@@ -174,6 +172,16 @@
   };
   # === END OF NVIDIA CONFIGURATION ===
 
+  # 必須在系統層級啟用 flatpak 服務（這會自動處理大部分的路徑與權限）
+  services.flatpak.enable = true;
+  systemd.services.flatpak-repo = {
+    wantedBy = [ "multi-user.target" ];
+    path = [ pkgs.flatpak ];
+    script = ''
+      flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+    '';
+  };
+
   # Enable the X11 windowing system.
   # services.xserver.enable = true;
   services.xserver = {
@@ -203,7 +211,7 @@
   # 啟用核心非特權名稱空間 for podman
   boot.kernel.sysctl."kernel.unprivileged_userns_clone" = 1;
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  # Define a user account.
   users.users."kawa" = {
     isNormalUser = true;
     description = "Kawa";
@@ -273,14 +281,13 @@
     pulse.enable = true;
   };
   programs.dconf.enable = true; # Settings management
-  # programs.niri.enable = true;
   programs.xfconf.enable = true;
 
   services.greetd = {
     enable = true;
     settings = {
       default_session = {
-        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'dbus-run-session niri --session'";
+        command = "${pkgs.tuigreet}/bin/tuigreet --time --cmd 'niri --session'";
         user = "greeter";
       };
     };
@@ -293,32 +300,42 @@
   services.tumbler.enable = true; # Thumbnail support for images
 
   environment.sessionVariables.NIXOS_OZONE_WL = "1";
+
+  programs.niri.enable = true;
+
+  # 強迫 niri-session 去拉起圖形會話
+  systemd.user.targets.niri-session = {
+    wants = [ "graphical-session.target" ];
+    after = [ "graphical-session.target" ];
+  };
+
   xdg.portal = {
-    enable = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gnome
-      pkgs.xdg-desktop-portal-gtk
+    enable = lib.mkDefault true;
+    extraPortals = with pkgs; [
+      xdg-desktop-portal-gtk
+      xdg-desktop-portal-gnome
     ];
     config.common.default = [
       "gtk"
       "gnome"
     ];
+    # Niri 在底層實作了 GNOME 的私有協定。因此，Niri 的螢幕分享（ScreenCast）和截圖（Screenshot），綁定 xdg-desktop-portal-gnome
     config.niri = {
-      default = [
+      default = lib.mkDefault [
         "gtk"
         "gnome"
       ];
       "org.freedesktop.impl.portal.FileChooser" = [
+        # "gnome"
         "gtk"
-        "gnome"
       ];
       "org.freedesktop.impl.portal.ScreenCast" = [
         "gnome"
-        "gtk"
+        # "gtk"
       ];
       "org.freedesktop.impl.portal.Screenshot" = [
         "gnome"
-        "gtk"
+        # "gtk"
       ];
     };
   };

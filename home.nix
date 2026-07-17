@@ -44,6 +44,8 @@ in
     thunar-archive-plugin # 解壓縮選單支援
     thunar-volman # 自動掛載裝置支援
 
+    nemo-with-extensions
+
     # 確保有 Qt 的輸入法內聯組件
     libsForQt5.fcitx5-qt
 
@@ -53,12 +55,13 @@ in
     mousepad
     ksnip
 
-    # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
-    # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
+    google-chrome
+    inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
+    inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
     # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
 
     # bottles # nixos 的不能建 bottle
-    flatpak
+    # flatpak # 必須在系統層級安裝才能得到服務和權限支援
 
     winboat
     podman-compose
@@ -84,33 +87,32 @@ in
   home.homeDirectory = lib.mkForce "/home/kawa";
   home.stateVersion = "26.05";
 
-  programs.vscode = {
-    enable = true;
-    package =
-      inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide-no-fhs;
+  # programs.vscode = {
+  #   enable = true;
+  #   package = inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide;
 
-    profiles.default.extensions =
-      (with pkgs.vscode-extensions; [
-        # 1. 這是 nixpkgs 本來就有的套件
-        vue.volar
-      ])
-      ++ [
-        # 2. 這是手動從 Marketplace/OpenVSX 自訂的套件
-        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
-          name = "csharp-dev-tools";
-          publisher = "JakubKozera";
-          version = "1.6.1";
-          # 第一次填寫時可以先用 lib.fakeSha256，讓 Nix 報錯並告訴你正確的雜湊值
-          sha256 = "sha256-nIhg/N2XpfiSQRh7uvKHS12KHo5FUWmWTslE8UXslp8=";
-        })
-        (pkgs.vscode-utils.extensionFromVscodeMarketplace {
-          name = "calmppuccin-vscode";
-          publisher = "kenan-salar";
-          version = "1.9.9";
-          sha256 = "sha256-KVIg/D3i93z6ajlLv6vKTk9LCAYTm/ukLq0BllOr3K0=";
-        })
-      ];
-  };
+  #   profiles.default.extensions =
+  #     (with pkgs.vscode-extensions; [
+  #       # 1. 這是 nixpkgs 本來就有的套件
+  #       vue.volar
+  #     ])
+  #     ++ [
+  #       # 2. 這是手動從 Marketplace/OpenVSX 自訂的套件
+  #       (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+  #         name = "csharp-dev-tools";
+  #         publisher = "JakubKozera";
+  #         version = "1.6.1";
+  #         # 第一次填寫時可以先用 lib.fakeSha256，讓 Nix 報錯並告訴你正確的雜湊值
+  #         sha256 = "sha256-nIhg/N2XpfiSQRh7uvKHS12KHo5FUWmWTslE8UXslp8=";
+  #       })
+  #       (pkgs.vscode-utils.extensionFromVscodeMarketplace {
+  #         name = "calmppuccin-vscode";
+  #         publisher = "kenan-salar";
+  #         version = "1.9.9";
+  #         sha256 = "sha256-KVIg/D3i93z6ajlLv6vKTk9LCAYTm/ukLq0BllOr3K0=";
+  #       })
+  #     ];
+  # };
 
   # 啟用 Syncthing 服務
   services.syncthing = {
@@ -265,17 +267,33 @@ in
     XDG_DATA_DIRS = "$XDG_DATA_DIRS:${pkgs.ksnip}/share";
   };
 
+  xdg.desktopEntries.nemo = {
+    name = "Nemo";
+    exec = "${pkgs.nemo-with-extensions}/bin/nemo";
+  };
+
   xdg.mimeApps = {
     enable = true;
     defaultApplications = {
       # 將所有資料夾的開啟方式預設為 thunar
       "inode/directory" = [ "thunar.desktop" ];
+      # "inode/directory" = [ "nemo.desktop" ];
       "application/zip" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-tar" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-7z-compressed" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-rar" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-7z-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
       "application/x-compressed-tar" = [ "org.gnome.FileRoller.desktop" ];
+    };
+  };
+
+  # nemo 的 Open in Termianl
+  dconf = {
+    settings = {
+      "org/cinnamon/desktop/applications/terminal" = {
+        exec = "kitty";
+        exec-arg = "%U";
+      };
     };
   };
 
@@ -291,7 +309,7 @@ in
 
   xdg.configFile."niri/config.kdl".source =
     config.lib.file.mkOutOfStoreSymlink /home/kawa/nixos/niri/config.kdl;
-  programs.niri.enable = true;
+  # programs.niri.enable = true; # 不能在 home.nix 啟用，會造成其他元件找不到 niri 及設定檔
 
   programs.noctalia = {
     enable = true;
@@ -335,6 +353,13 @@ in
     ];
   };
 
+  programs.bash = {
+    enable = true;
+    initExtra = ''
+      eval "$(fnm env --use-on-cd --shell bash)"
+    '';
+  };
+
   programs.yazi = {
     enable = true;
     plugins = {
@@ -351,7 +376,7 @@ in
 
     fcitx5 = {
       waylandFrontend = true;
-      ignoreUserConfig = true; # 吃下面的 settings，不用 user 的
+      # ignoreUserConfig = true; # 吃下面的 settings，不用 user 的
       addons = with pkgs; [
         fcitx5-gtk
         qt6Packages.fcitx5-configtool
@@ -362,19 +387,19 @@ in
         fcitx5-rime
         rime-data
       ];
-      settings = {
-        inputMethod = {
-          "Groups/0" = {
-            Name = "Default";
-            "Default Layout" = "us";
-            DefaultIM = "keyboard-us";
-          };
-          "Groups/0/Items/0".Name = "keyboard-us";
-          "Groups/0/Items/1".Name = "canjie";
-          "Groups/0/Items/2".Name = "rime";
-          "Groups/0/Items/3".Name = "chewing";
-        };
-      };
+      # settings = {
+      #   inputMethod = {
+      #     "Groups/0" = {
+      #       Name = "Default";
+      #       "Default Layout" = "us";
+      #       DefaultIM = "keyboard-us";
+      #     };
+      #     "Groups/0/Items/0".Name = "keyboard-us";
+      #     "Groups/0/Items/1".Name = "canjie";
+      #     "Groups/0/Items/2".Name = "rime";
+      #     "Groups/0/Items/3".Name = "chewing";
+      #   };
+      # };
     };
   };
 
