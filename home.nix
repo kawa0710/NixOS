@@ -1,9 +1,8 @@
-{
-  config,
-  pkgs,
-  inputs,
-  lib,
-  ...
+{ config
+, pkgs
+, inputs
+, lib
+, ...
 }:
 
 let
@@ -56,6 +55,8 @@ in
     ksnip
 
     google-chrome
+    nixpkgs-fmt # nix code formatter for nixpkgs
+    nixd # nix Language Server Protocal (LSP)
     inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-ide
     # inputs.antigravity-nix.packages.${pkgs.stdenv.hostPlatform.system}.google-antigravity-cli
@@ -313,9 +314,7 @@ in
 
   programs.noctalia = {
     enable = true;
-    settings = {
-
-    };
+    settings = { };
   };
 
   programs.helium = {
